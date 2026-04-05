@@ -1,11 +1,10 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, LedgerEvent, InsertLedgerEvent, MerkleProof, InsertMerkleProof, ChainAnchor, InsertChainAnchor, ledgerEvents, merkleProofs, chainAnchors } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -85,8 +84,87 @@ export async function getUserByOpenId(openId: string) {
   }
 
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Ledger Queries
+export async function appendLedgerEvent(event: InsertLedgerEvent): Promise<LedgerEvent> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(ledgerEvents).values(event);
+  const inserted = await db.select().from(ledgerEvents).where(eq(ledgerEvents.hash, event.hash)).limit(1);
+  if (!inserted.length) throw new Error("Failed to insert ledger event");
+  return inserted[0];
+}
+
+export async function getLedgerHistory(limit: number = 100, offset: number = 0, filters?: { decision?: string; omegaMin?: number; omegaMax?: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  let query = db.select().from(ledgerEvents);
+  
+  if (filters?.decision) {
+    query = query.where(eq(ledgerEvents.decision, filters.decision)) as any;
+  }
+  
+  return query.orderBy(desc(ledgerEvents.createdAt)).limit(limit).offset(offset);
+}
+
+export async function getLastLedgerHash(): Promise<string> {
+  const db = await getDb();
+  if (!db) return "0".repeat(64);
+  
+  const result = await db.select().from(ledgerEvents).orderBy(desc(ledgerEvents.createdAt)).limit(1);
+  return result.length > 0 ? result[0].hash : "0".repeat(64);
+}
+
+// Merkle Proof Queries
+export async function saveMerkleProof(proof: InsertMerkleProof): Promise<MerkleProof> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(merkleProofs).values(proof);
+  const result = await db.select().from(merkleProofs).where(eq(merkleProofs.merkleRoot, proof.merkleRoot)).limit(1);
+  if (!result.length) throw new Error("Failed to insert merkle proof");
+  return result[0];
+}
+
+export async function getMerkleProof(merkleRoot: string): Promise<MerkleProof | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(merkleProofs).where(eq(merkleProofs.merkleRoot, merkleRoot)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Chain Anchor Queries
+export async function saveChainAnchor(anchor: InsertChainAnchor): Promise<ChainAnchor> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(chainAnchors).values(anchor);
+  const result = await db.select().from(chainAnchors).where(eq(chainAnchors.merkleRoot, anchor.merkleRoot)).limit(1);
+  if (!result.length) throw new Error("Failed to insert chain anchor");
+  return result[0];
+}
+
+export async function getChainAnchor(merkleRoot: string): Promise<ChainAnchor | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(chainAnchors).where(eq(chainAnchors.merkleRoot, merkleRoot)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateChainAnchorStatus(merkleRoot: string, status: string, txHash?: string, blockNumber?: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  
+  const updates: any = { status };
+  if (txHash) updates.txHash = txHash;
+  if (blockNumber) updates.blockNumber = blockNumber;
+  if (status === "CONFIRMED") updates.confirmedAt = new Date();
+  
+  await db.update(chainAnchors).set(updates).where(eq(chainAnchors.merkleRoot, merkleRoot));
+}
