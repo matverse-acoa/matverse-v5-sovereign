@@ -22,12 +22,12 @@
 - [ ] POST /api/trpc/replay.execute - Executar replay determinístico de pipeline
 
 ## Frontend Dashboard (VibeCoding)
-- [ ] Página de autenticação com OAuth Manus
-- [ ] Dashboard principal com visualização de fluxo (Ψ, CVaR, Ω)
-- [ ] Gráfico de evolução de coerência (Ψ) em tempo real
-- [ ] Gráfico de evolução de risco (CVaR) em tempo real
-- [ ] Tabela de decisões Ω-GATE com status (PASS/BLOCK)
-- [ ] Visualização de ledger com histórico de eventos
+- [x] Página de autenticação com OAuth Manus
+- [x] Dashboard principal com visualização de fluxo (Ψ, CVaR, Ω)
+- [x] Gráfico de evolução de coerência (Ψ) em tempo real
+- [x] Gráfico de evolução de risco (CVaR) em tempo real
+- [x] Tabela de decisões Ω-GATE com status (PASS/BLOCK)
+- [x] Visualização de ledger com histórico de eventos
 - [ ] Painel de ancoragens on-chain com status de confirmação
 - [ ] Página de replay com entrada de parâmetros e reprodução de estado
 - [ ] Página de auditoria com verificação de integridade criptográfica
@@ -39,11 +39,11 @@
 - [ ] Logging de auditoria para todas as ações
 
 ## Documentation & Testing
-- [ ] AUDIT_REPORT_V5.md com evidência de execução soberana
-- [ ] Testes de integridade do Merkle Tree
+- [x] AUDIT_REPORT_V5.md com evidência de execução soberana
+- [x] Testes de integridade do Merkle Tree
 - [ ] Testes de determinismo da pipeline Π
 - [ ] Testes de integração Web3 (Sepolia)
-- [ ] Documentação técnica consolidada
+- [x] Documentação técnica consolidada
 
 ## Deployment
 - [ ] Checkpoint inicial após implementação core
