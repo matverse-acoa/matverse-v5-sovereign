@@ -55,6 +55,19 @@ export const appRouter = router({
         return getChainAnchor(input);
       }),
   }),
+
+  replay: router({
+    execute: publicProcedure
+      .input(z.object({
+        startEventId: z.number().optional(),
+        endEventId: z.number().optional(),
+        verifyIntegrity: z.boolean().default(true),
+      }))
+      .query(async ({ input }) => {
+        const { executeReplayPipeline } = await import('./replay-engine');
+        return await executeReplayPipeline(input);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
