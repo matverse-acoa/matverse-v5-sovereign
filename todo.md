@@ -28,9 +28,9 @@
 - [x] Gráfico de evolução de risco (CVaR) em tempo real
 - [x] Tabela de decisões Ω-GATE com status (PASS/BLOCK)
 - [x] Visualização de ledger com histórico de eventos
-- [ ] Painel de ancoragens on-chain com status de confirmação
-- [ ] Página de replay com entrada de parâmetros e reprodução de estado
-- [ ] Página de auditoria com verificação de integridade criptográfica
+- [x] Painel de ancoragens on-chain com status de confirmação
+- [x] Página de replay com entrada de parâmetros e reprodução de estado
+- [x] Página de auditoria com verificação de integridade criptográfica
 
 ## Access Control & Security
 - [x] Sistema de roles (admin/user) com separação de papéis
@@ -48,4 +48,4 @@
 ## Deployment
 - [x] Checkpoint inicial após implementação core
 - [x] Testes de produção e validação
-- [ ] Checkpoint final antes de entrega
+- [x] Checkpoint final antes de entrega
