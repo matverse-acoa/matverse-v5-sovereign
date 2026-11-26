@@ -8,7 +8,7 @@ import { getLedgerHistory, getMerkleProof, getChainAnchor } from "./db";
 
 const OmegaMetricsSchema = z.object({
   psi: z.number().min(0).max(1),
-  theta: z.number().min(0),
+  theta: z.number().int().min(0),
   cvar: z.number().min(0).max(1),
   pole: z.number().int().min(0).max(1),
 });

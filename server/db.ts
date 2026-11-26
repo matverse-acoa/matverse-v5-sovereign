@@ -108,14 +108,14 @@ export async function getLedgerHistory(limit: number = 100, offset: number = 0, 
     query = query.where(eq(ledgerEvents.decision, filters.decision)) as any;
   }
   
-  return query.orderBy(desc(ledgerEvents.createdAt)).limit(limit).offset(offset);
+  return query.orderBy(desc(ledgerEvents.id)).limit(limit).offset(offset);
 }
 
 export async function getLastLedgerHash(): Promise<string> {
   const db = await getDb();
   if (!db) return "0".repeat(64);
   
-  const result = await db.select().from(ledgerEvents).orderBy(desc(ledgerEvents.createdAt)).limit(1);
+  const result = await db.select().from(ledgerEvents).orderBy(desc(ledgerEvents.id)).limit(1);
   return result.length > 0 ? result[0].hash : "0".repeat(64);
 }
 
