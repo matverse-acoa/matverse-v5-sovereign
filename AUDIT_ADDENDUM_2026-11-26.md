@@ -24,6 +24,25 @@ Scope: `omega-gate`, `replay-engine`, Merkle proofs, database ledger schema and 
 - External anchor submission now requires both explicit call-site approval and `MATVERSE_ALLOW_EXTERNAL_ANCHOR=true`, a configured Sepolia RPC URL, and chain-ID validation. Verification checks receipt success and the exact transaction data.
 - Added a CI workflow for type checking, unit tests and production build.
 
-## Promotion boundary
+## Validation observed on 2026-11-26
 
-This addendum and its code changes do not establish production operation. Promotion still requires CI success, execution of the database migration in a controlled environment, a database-backed replay integration test, and independent validation of any externally submitted transaction. No transaction, deployment or external publication was performed by this work.
+GitHub Actions completed successfully on the PR branch:
+
+- Drizzle migration snapshot-chain check: PASS.
+- Migration application to an ephemeral MySQL 8.0 service: PASS.
+- Type checking: PASS.
+- Test suite: 25/25 tests across 5 files, including 2 MySQL-backed replay integration tests: PASS.
+- Production build: PASS.
+
+The integration tests confirm that replay does not append ledger events, preserves PASS and BLOCK states, verifies a single-event range against its predecessor, and rejects a tampered v2 payload.
+
+## Remaining promotion boundary
+
+This does not establish production operation. Still required:
+
+- Apply the additive migration to a controlled environment after backup and rollback rehearsal.
+- Run concurrency/stress tests for ledger appends. Replay detects forks, but append serialization under concurrent writers has not yet been established.
+- Verify the external transaction path on Sepolia only after explicit authorization. The current mechanism is a zero-value self-transaction carrying the root in transaction data, not a smart-contract event or contract-based anchor.
+- Independently verify any submitted transaction and record its receipt.
+
+No production database migration, blockchain transaction, deployment or external publication was performed by this work.
