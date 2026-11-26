@@ -45,4 +45,4 @@ This does not establish production operation. Still required:
 - Verify the external transaction path on Sepolia only after explicit authorization. The current mechanism is a zero-value self-transaction carrying the root in transaction data, not a smart-contract event or contract-based anchor.
 - Independently verify any submitted transaction and record its receipt.
 
-No production database migration, blockchain transaction, deployment or external publication was performed by this work.
+No production database migration, blockchain transaction or deployment was performed. This branch and PR are public code-review artifacts; the uploaded prompt, private corpus content, credentials and private research materials were not included.
