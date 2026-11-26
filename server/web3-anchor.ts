@@ -51,7 +51,7 @@ export async function anchorMerkleRoot(
     const estimatedGas = await provider.estimateGas(transaction);
     const tx = await wallet.sendTransaction({
       to: wallet.address,
-      value: 0n,
+      value: 0,
       data,
       gasLimit: estimatedGas + estimatedGas / BigInt(5),
     });
