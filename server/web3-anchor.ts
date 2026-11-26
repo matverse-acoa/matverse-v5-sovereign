@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-const SEPOLIA_CHAIN_ID = 11155111n;
+const SEPOLIA_CHAIN_ID = BigInt(11155111);
 
 export interface AnchorAuthorization {
   approved: boolean;
@@ -47,13 +47,13 @@ export async function anchorMerkleRoot(
 
     const wallet = new ethers.Wallet(privateKey, provider);
     const data = `0x${merkleRoot.toLowerCase()}`;
-    const transaction = { from: wallet.address, to: wallet.address, value: 0n, data };
+    const transaction = { from: wallet.address, to: wallet.address, value: 0, data };
     const estimatedGas = await provider.estimateGas(transaction);
     const tx = await wallet.sendTransaction({
       to: wallet.address,
       value: 0n,
       data,
-      gasLimit: estimatedGas + estimatedGas / 5n,
+      gasLimit: estimatedGas + estimatedGas / BigInt(5),
     });
     return { txHash: tx.hash, status: "PENDING", timestamp: Date.now() };
   } catch {
