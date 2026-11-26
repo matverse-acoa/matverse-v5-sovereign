@@ -29,6 +29,8 @@ export type InsertUser = typeof users.$inferInsert;
 export const ledgerEvents = mysqlTable("ledger_events", {
   id: int("id").autoincrement().primaryKey(),
   hash: varchar("hash", { length: 64 }).notNull().unique(),
+  hashVersion: int("hashVersion").notNull().default(1), // 1 = legacy; 2 = canonical persisted payload
+  hashPayload: text("hashPayload"), // Canonical JSON used to compute the v2 event hash
   prevHash: varchar("prevHash", { length: 64 }).notNull(),
   psi: int("psi").notNull(), // Stored as integer (0-1000 = 0.0-1.0)
   theta: int("theta").notNull(), // Latência em ms

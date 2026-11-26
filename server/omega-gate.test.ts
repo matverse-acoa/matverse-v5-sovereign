@@ -46,6 +46,12 @@ describe("Omega Gate V5", () => {
     const omega = computeOmega(metrics);
     expect(omega).toBeLessThan(0.85);
   });
+
+  it("rejects out-of-domain metrics rather than clamping invalid inputs", () => {
+    expect(() => computeOmega({ psi: 1.1, theta: 50, cvar: 0.02, pole: 1 })).toThrow();
+    expect(() => computeOmega({ psi: 0.9, theta: 2.5, cvar: 0.02, pole: 1 })).toThrow();
+    expect(() => computeOmega({ psi: 0.9, theta: 50, cvar: 0.02, pole: 2 })).toThrow();
+  });
 });
 
 describe("Merkle Tree", () => {
@@ -81,17 +87,28 @@ describe("Merkle Tree", () => {
     expect(isValid).toBe(true);
   });
 
-  it("rejects invalid merkle proof", () => {
-    const hashes = [
-      sha256("event1"),
-      sha256("event2"),
-      sha256("event3"),
-      sha256("event4"),
-    ];
+  it("verifies proofs for left and right leaves", () => {
+    const hashes = [sha256("event1"), sha256("event2"), sha256("event3"), sha256("event4")];
+    const root = computeMerkleRoot(hashes);
+    for (const index of [0, 1, 2, 3]) {
+      const proof = getMerkleProofPath(hashes, index);
+      expect(verifyMerkleProof(hashes[index], proof, root, index)).toBe(true);
+    }
+  });
+
+  it("verifies the duplicated sibling for an odd-sized tree", () => {
+    const hashes = [sha256("event1"), sha256("event2"), sha256("event3")];
+    const root = computeMerkleRoot(hashes);
+    const proof = getMerkleProofPath(hashes, 2);
+    expect(verifyMerkleProof(hashes[2], proof, root, 2)).toBe(true);
+  });
+
+  it("rejects invalid merkle proof and invalid leaf index", () => {
+    const hashes = [sha256("event1"), sha256("event2"), sha256("event3"), sha256("event4")];
     const root = computeMerkleRoot(hashes);
     const proof = getMerkleProofPath(hashes, 0);
-    const isValid = verifyMerkleProof(sha256("fake"), proof, root);
-    expect(isValid).toBe(false);
+    expect(verifyMerkleProof(sha256("fake"), proof, root, 0)).toBe(false);
+    expect(() => getMerkleProofPath(hashes, 9)).toThrow();
   });
 });
 

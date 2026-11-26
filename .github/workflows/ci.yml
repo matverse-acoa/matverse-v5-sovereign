@@ -1,0 +1,52 @@
+name: MatVerse V5 CI
+
+on:
+  push:
+    branches:
+      - main
+      - "fix/**"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/matverse_test
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: matverse_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate migration snapshot chain
+        run: pnpm exec drizzle-kit check
+      - name: Apply migrations to disposable MySQL
+        run: pnpm exec drizzle-kit migrate
+      - name: Type check
+        run: pnpm check
+      - name: Unit tests
+        run: pnpm test
+      - name: Production build
+        run: pnpm build
